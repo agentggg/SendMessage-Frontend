@@ -1,30 +1,49 @@
 {
   "expo": {
-    "name": "all_nations",
+    "name": "sendmessage",
     "slug": "all_nations",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/appIcon.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/splashPage.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
+    },
+    "updates": {
+      "requestHeaders": {
+        "expo-channel-name": "preview"
+      },
+      "enabled": true,
+      "fallbackToCacheTimeout": 0,
+      "url": "https://u.expo.dev/a72504e9-e86d-4d23-9807-47e31ba51dcb"
     },
     "assetBundlePatterns": [
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "all-nations",
+      "companyName": "Evoloving Technologies LLC"
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/splashPage.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.agentgg.all_nations"
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/splashPage.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "a72504e9-e86d-4d23-9807-47e31ba51dcb"
+      }
+    },
+    "runtimeVersion": {
+      "policy": "sdkVersion"
     }
   }
 }
