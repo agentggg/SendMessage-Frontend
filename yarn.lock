@@ -3196,7 +3196,7 @@
   dependencies:
     "@sinonjs/commons" "^2.0.0"
 
-"@stripe/stripe-react-native@0.23.3":
+"@stripe/stripe-react-native@^0.23.3":
   "integrity" "sha512-jfvmNDYxjkIdc/Hths3wdKAAXThAf+IieV+KQhd5b7f1eWrTXBzA9IzUZkXb73r/LiSw/GB5K4bBOJTDjgvd+A=="
   "resolved" "https://registry.npmjs.org/@stripe/stripe-react-native/-/stripe-react-native-0.23.3.tgz"
   "version" "0.23.3"
@@ -4757,6 +4757,11 @@
     "md5-file" "^3.2.3"
     "path-browserify" "^1.0.0"
     "url-parse" "^1.5.9"
+
+"expo-av@^13.2.1":
+  "integrity" "sha512-mC0mYSzaOaZgXjzhW2l4Ag325JjH6q5IbptfwD7gkMOFYy7VPOMxEMUnetadbs3DDzmgE6vUWrTjUIUbwq59qg=="
+  "resolved" "https://registry.npmjs.org/expo-av/-/expo-av-13.2.1.tgz"
+  "version" "13.2.1"
 
 "expo-checkbox@~2.3.1":
   "integrity" "sha512-CTIabriK5xbtDnI9U5Hve82/WG85XLI4GLYSRTT1XST21HjQ7mDaeiYm7DnKzcgM+qeBwmbg3crJYnp7WW/8Ew=="

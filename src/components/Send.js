@@ -7,12 +7,15 @@ import { useForm, Controller } from 'react-hook-form';
 import { Avatar } from 'react-native-elements';
 import { SelectMessageOptionContext } from '../context/SelectMessageOption'
 import { ProfileInfo } from '../context/ProfileInfo'
+import Logout from '../reuseableComponents/Logout';
+import getIpAddress from '../../config';
 
 
 
 const COLORS = ['black', '#6366F1'];
 
 const Send = ({navigation}) => {
+  const ipAddress = getIpAddress();
   const [profileInfo] = useContext(ProfileInfo)
   const [contactColors, setContactColors] = useState({});
   const [height, setHeight] = useState(5)
@@ -26,9 +29,12 @@ const Send = ({navigation}) => {
   const [imageRemoval, setImageRemoval] = useState(null)
   const [viewRecipient, setViewRecipient] = useState(false)
   const [image, setImage] = useState(null);
-const [imageUrl, setImageUrl] = useState(null);
+  const [imageUrl, setImageUrl] = useState(null);
   const scrollViewRef = useRef();
 
+  const goBack= () => {
+    navigation.navigate('Authenticatie');
+  }
 
   const cloudName = 'dxhcnn7k3'
   const {org, token, username} = profileInfo;
@@ -68,28 +74,28 @@ const [imageUrl, setImageUrl] = useState(null);
               "file":image,              
             }
             if (selectOption === "contact_api"){
-              await axios.post(`https://agentofgod.pythonanywhere.com/contact_email_api`,apiData,{headers: {Authorization: `token ${token}`, 'Accept': 'application/json', 'Content-Type': 'application/json'}}, {enabled:Boolean(username)}) 
+              await axios.post(`${ipAddress}/contact_email_api`,apiData,{headers: {Authorization: `token ${token}`, 'Accept': 'application/json', 'Content-Type': 'application/json'}}, {enabled:Boolean(username)}) 
               setMessage('')
               setSelectContact('')
               setImage('')
               navigation.goBack()  
             }
             else if (selectOption === "category_api"){
-              await axios.post(`https://agentofgod.pythonanywhere.com/category_email_api`,apiData,{headers: {Authorization: `token ${token}`}}, {enabled:Boolean(username)})
+              await axios.post(`${ipAddress}/category_email_api`,apiData,{headers: {Authorization: `token ${token}`}}, {enabled:Boolean(username)})
               setMessage('')
               setSelectContact('')
               setImage('')
               navigation.goBack()
             }
             else if (selectOption === "outreach_api"){
-              await axios.post(`https://agentofgod.pythonanywhere.com/minister_email_api`,apiData,{headers: {Authorization: `token ${token}`}}, {enabled:Boolean(username)})
+              await axios.post(`${ipAddress}/minister_email_api`,apiData,{headers: {Authorization: `token ${token}`}}, {enabled:Boolean(username)})
               setMessage('')
               setSelectContact('')
               setImage('')
               navigation.goBack()
             }
             else if (selectOption === "all_outreach"){
-              await axios.post(`https://agentofgod.pythonanywhere.com/outreach_contact_email_api_data`,apiData,{headers: {Authorization: `token ${token}`}}, {enabled:Boolean(username)})
+              await axios.post(`${ipAddress}/outreach_contact_email_api_data`,apiData,{headers: {Authorization: `token ${token}`}}, {enabled:Boolean(username)})
               setMessage('')
               setSelectContact('')
               setImage('')
@@ -132,11 +138,11 @@ const [imageUrl, setImageUrl] = useState(null);
   }, [image]);
   
   const api_fetch = async () => {
-    const apiData = await axios.post(`https://agentofgod.pythonanywhere.com/${selectOption}?format=json`,{"org":org, "username":username, "userView":"outreachContacts"},{headers : {"Authorization" : `token ${token}`}}, {enabled:Boolean(username)});
+    const apiData = await axios.post(`${ipAddress}/${selectOption}?format=json`,{"org":org, "username":username, "userView":"outreachContacts"},{headers : {"Authorization" : `token ${token}`}}, {enabled:Boolean(username)});
     return (apiData.data)
   };
   const recipientApiRequest = async() => {
-    const apiRecipientApiRequestData = await axios.post(`https://agentofgod.pythonanywhere.com/view_recipient`,{
+    const apiRecipientApiRequestData = await axios.post(`${ipAddress}/view_recipient`,{
       "org":org, 
       "username":username, 
       "groupType": selectOption, 
@@ -176,6 +182,7 @@ const [imageUrl, setImageUrl] = useState(null);
   
   return (
       <SafeAreaView style={styles.container}>
+        <Logout onPress={goBack} />
         {}
         <ScrollView>
         {selectContactView ? 

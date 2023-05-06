@@ -5,8 +5,11 @@ import axios from 'axios';
 import * as Location from 'expo-location';
 import { useQuery } from 'react-query';
 import { ProfileInfo } from '../context/ProfileInfo'
+import Logout from '../reuseableComponents/Logout';
+import getIpAddress from '../../config';
 
-export default function App() {
+export default function App({navigation}) {
+  const ipAddress = getIpAddress();
   const [profileInfo] = useContext(ProfileInfo)
   const [markers, setMarkers] = useState([]);
   const [region, setRegion] = useState('');
@@ -17,9 +20,11 @@ export default function App() {
   const username = profileInfo.username
 
   
-
+  const goBack= () => {
+    navigation.navigate('Authenticatie');
+  }
   const { isLoading, error, data: users } = useQuery('getUsers', async () => {
-    const response = await axios.post('https://agentofgod.pythonanywhere.com/analyticals',{"org":org, "username":username}, {headers: {Authorization: `token ${token}`}});
+    const response = await axios.post(`${ipAddress}/analyticals`,{"org":org, "username":username}, {headers: {Authorization: `token ${token}`}});
     return response.data;
   }, {
     enabled: Boolean(username)
@@ -89,6 +94,7 @@ export default function App() {
 
   return (
     <SafeAreaView style={styles.container}>
+       <Logout onPress={goBack} />
     <View>
       <Text style={styles.textHeader}>Light it up🔥🔥🔥</Text> 
       {region && (

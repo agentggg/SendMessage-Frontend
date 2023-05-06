@@ -16,8 +16,12 @@ import {
 import axios from "axios"
 import * as Linking from 'expo-linking';
 import * as MailComposer from 'expo-mail-composer';
+import TermsAndConditionsModal from './TermsAndConditionsModal';
+import getIpAddress from '../../config';
 
 const CreateAccount = ({ navigation }) => {
+  const ipAddress = getIpAddress();
+  const [modalVisible, setModalVisible] = useState(false);
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -64,7 +68,7 @@ const CreateAccount = ({ navigation }) => {
     }
     data.inputs = data.inputs;
     try {
-      const api_resp = await axios.post(`https://agentofgod.pythonanywhere.com/create_account`, data);
+      const api_resp = await axios.post(`${ipAddress}/create_account`, data);
       // used to post data to the backend using external component
       if (api_resp.data === "account created") {
         // if account is created without error, then the following code is processed. 
@@ -358,7 +362,7 @@ const CreateAccount = ({ navigation }) => {
               </View>
               {/* <View  style={styles.textInputContainer}>
                 <Text style={styles.textInputHeaders}>Payment Info:</Text>
-                <Text style={styles.priceBreakDownHeader}>‼️PLEASE READ‼️ - Text or call us at 470-222-5020 if you have any questions.</Text>
+                <Text style={styles.priceBreakDownHeader}>‼️PLEASE READ‼️</Text>
                 <Text style={styles.priceBreakDown}>$50 app yearly cost $8 for every 100 text that is sent - that is less than 0.0079 per text. The amount listed on next question already includes the $50 app yearly cost. Anything more than $50 will be towards funding your text account. The text cost is a "pay for what you use" system. ‼️You only pay for whatever text that you send‼️</Text>
               </View> */}
               <View style={styles.buttons}>
@@ -373,9 +377,9 @@ const CreateAccount = ({ navigation }) => {
         </KeyboardAvoidingView>
         </TouchableWithoutFeedback>
       </ScrollView>
-</SafeAreaView>
-)
-              }
+    </SafeAreaView>
+    )
+  }
 const styles = StyleSheet.create({
   safeAreaView: {
     flex: 1,

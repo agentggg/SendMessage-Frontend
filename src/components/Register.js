@@ -6,8 +6,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import axios from 'axios'
 import { useQuery } from "react-query"
 import { ProfileInfo } from '../context/ProfileInfo'
+import Logout from '../reuseableComponents/Logout';
+import getIpAddress from '../../config';
 
 const OutreachUpdate = () => {
+    const ipAddress = getIpAddress();
     const [profileInfo] = useContext(ProfileInfo)
     const [notes, setNotes] = useState('')
     const [firstName, setFirstName] = useState('')
@@ -18,6 +21,11 @@ const OutreachUpdate = () => {
     const org = profileInfo.org
     const token = profileInfo.token
     const username = profileInfo.username
+
+    const goBack= () => {
+        navigation.navigate('Authenticatie');
+      }
+
     const updateContact = async(e) => {
       const data = {
         firstName:firstName, lastName:lastName, phoneNumber:phoneNumber,
@@ -25,13 +33,13 @@ const OutreachUpdate = () => {
         org:org, username:username
       }
       // data that will be sent to the API endpoint
-      await axios.post(`https://agentofgod.pythonanywhere.com/register_api`,data,{ Authorization: `token ${process.env.REACT_APP_API_TOKEN}`});
+      await axios.post(`${ipAddress}/register_api`,data,{ Authorization: `token ${process.env.REACT_APP_API_TOKEN}`});
       Alert.alert('Contact Registered Successfully')
       // sets the value of the form input fields to "empty". If not, the prevent default will hinder the page from re-rendering, and all the data will remain on screen.
       setNotes(''),setFirstName(''), setLastName(''), setPhoneNumber(''), setLocation('')
     }
     const getCategory = async () => {
-        const getApiData = await axios.post(`https://agentofgod.pythonanywhere.com/category_api`,{
+        const getApiData = await axios.post(`${ipAddress}/category_api`,{
             "org":org, 
             "username":username, 
             "pageName":"register"
@@ -67,6 +75,7 @@ const OutreachUpdate = () => {
 return (
     <SafeAreaView>
         <KeyboardAwareScrollView>
+        <Logout onPress={goBack} />
             <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
                 <View style={styles.container}>
                     <Text style={styles.greeter}> {org} Contact Update</Text>
@@ -106,17 +115,6 @@ return (
                         keyboardType="numeric"
                     />
                     <TextInput
-                        style={styles.fieldData}
-                        value={location}
-                        autoCorrect={false}
-                        onChangeText={(text) => {
-                            setLocation(text) 
-                        }}
-                        placeholder="Location"
-                        clearButtonMode="always"
-                        returnKeyType="next"
-                    />
-                    <TextInput
                         multiline
                         numberOfLines={4}
                         style={styles.fieldDataNotes}
@@ -139,8 +137,8 @@ return (
                         ))}
                     </Picker>
                     <View style={styles.buttons}>
-                        <Pressable onPress={() => updateContact('contactUpdate')} style={styles.OutreachUpdatePressable}><Text style={styles.OutreachUpdateText}>Update</Text></Pressable>
-                        <Pressable onPress={() => updateContact('guestUpdate')} style={styles.firstTimePressable}><Text style={styles.firstTimeOutreachUpdate}>Update and Guest</Text></Pressable>
+                        <Pressable onPress={() => updateContact('contactUpdate')} style={styles.OutreachUpdatePressable}><Text style={styles.OutreachUpdateText}>Save</Text></Pressable>
+                        <Pressable onPress={() => updateContact('guestUpdate')} style={styles.firstTimePressable}><Text style={styles.firstTimeOutreachUpdate}>Save and Text</Text></Pressable>
                     </View>                   
                 </View>
             </TouchableWithoutFeedback>

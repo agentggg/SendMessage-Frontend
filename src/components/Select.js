@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import { Text, View, TouchableOpacity, StyleSheet } from 'react-native';
 import { SelectMessageOptionContext } from '../context/SelectMessageOption';
 import { Ionicons } from '@expo/vector-icons';
+import Logout from '../reuseableComponents/Logout';
 
 function Select({navigation}) {
   const [selectOption, setSelectOption] = useContext(SelectMessageOptionContext);
@@ -10,9 +11,12 @@ function Select({navigation}) {
     setSelectOption(buttonSelection)
     navigation.navigate('Text')
   };
-
+  const goBack= () => {
+    navigation.navigate('Authenticatie');
+  }
   return (
     <View style={styles.container}>
+      <Logout onPress={goBack} />
       <TouchableOpacity onPress={() => SendCategory('category_api')} style={[styles.button, styles.categoryButton]}>
         <Text style={[styles.buttonText, styles.categoryButtonText]}>Send by Category</Text>
         <Ionicons name="ios-arrow-forward" size={24} color="#FFFFFF" />

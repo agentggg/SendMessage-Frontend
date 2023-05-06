@@ -1,34 +1,36 @@
 import React, { useState, useContext } from 'react';
 import axios from 'axios';
 import { TouchableOpacity, View, StyleSheet, Text, Modal, SafeAreaView, ScrollView, TextInput, ActivityIndicator } from 'react-native';
-import { useSecureStoreData } from './useSecureStoreData';
 import { useQuery } from 'react-query';
 import { ProfileInfo } from '../context/ProfileInfo'
+import Logout from '../reuseableComponents/Logout';
+import getIpAddress from '../../config';
 
 
-const Admin = () => {
+const OutreachContacts = ({navigation}) => {
+  const ipAddress = getIpAddress();
   const [profileInfo] = useContext(ProfileInfo)
-  const [contacts, setContacts] = useState([]);
-  const [selectedContact, setSelectedContact] = useState('');
+  const [Outreachs, setOutreachs] = useState([]);
+  const [selectedOutreach, setSelectedOutreach] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
-  const [editingContact, setEditingContact] = useState(false);
-  const [editedContact, setEditedContact] = useState('');
   const token = profileInfo.token
   const username = profileInfo.username
   const org = profileInfo.org
 
-
+  const goBack= () => {
+    navigation.navigate('Authenticatie');
+  }
   /**
  * Gets Data from API
  * @author  Stevenson
  * @param    {object} // destructured object and getting the params from useQuery 
  * @description 			// makes call to API and sends body params via queryKey [1]
  * @return   {Object} 	return raw and full API call				
- * @route                /all_contact             
+ * @route                /all_Outreach             
 */
   const userProfileInfoGet = async ({ queryKey: { 1: key} }) => {
-    const allContacts = await axios.post(`https://agentofgod.pythonanywhere.com/all_contact`,{"org": key.org,"username": key.username});
-    return(allContacts)
+    const allOutreachs = await axios.post(`${ipAddress}/all_outreach`,{"org": key.org,"username": key.username});
+    return(allOutreachs)
   }
 
 
@@ -46,12 +48,12 @@ const Admin = () => {
   // ex / data in [{name: 'hasan'}] - data.map((each)=> <h4> {each.name} </h4> dont change it to first_name because you Will get bugs 
   // looks good awesome ! if you need any help give me shout ! thank you
   
-  const {data:contact, isLoading, error} = useQuery(["allContacts", profileInfo], userProfileInfoGet,  {enabled:Boolean(username)})
+  const {data:Outreach, isLoading, error} = useQuery(["allOutreachs", profileInfo], userProfileInfoGet,  {enabled:Boolean(username)})
   if (isLoading) {
     return (
       <View style={styles.alertContainer}>
           <ActivityIndicator size="large" color="red"/>
-          <Text style={styles.alert}>Fetching all the contacts 📝</Text>
+          <Text style={styles.alert}>Fetching all the Outreachs 📝</Text>
       </View>
   )
   }
@@ -59,42 +61,26 @@ const Admin = () => {
   if (error) {
     return (
       <View style={styles.alertContainer}>
-          <Text style={styles.alert}>Error fetching the contacts 🥴. Try again later</Text>
+          <Text style={styles.alert}>Error fetching the Outreachs 🥴. Try again later</Text>
       </View>
     )
   }
 
 
-  const handleContactPress = (contact) => {
-    setSelectedContact(contact);
+  const handleOutreachPress = (Outreach) => {
+    setSelectedOutreach(Outreach);
     setModalVisible(true);
   };
 
-  const handleEditContactPress = () => {
-    setEditingContact(true);
-    setEditedContact(selectedContact);
-  };
 
-  const updateContact = async (contact) => {
-    const updatedContacts = [...contacts];
+  const deleteOutreach = async(id) => {
     try {
-      await axios.post(`https://agentofgod.pythonanywhere.com/update_api`,contact,{headers : {Authorization : `token ${token}`}})  
+      await axios.post(`${ipAddress}/admin_delete_user`,{"org":org, "user":id, setView:'outreach'},{headers : {"Authorization" : `token ${token}`}})  
     } catch (error) {
-      console.error("Error updating contact:", error);
+      console.error("Error updating Outreach:", error);
   }
-    const index = await updatedContacts.findIndex((c) => c.id === contact.id);
-    updatedContacts[index] = contact;
-    setContacts(updatedContacts);
-  };
-
-  const deleteContact = async(id) => {
-    try {
-      await axios.post(`https://agentofgod.pythonanywhere.com/admin_delete_user`,{"org":org, "user":id},{headers : {"Authorization" : `token ${token}`}})  
-    } catch (error) {
-      console.error("Error updating contact:", error);
-  }
-    const updatedContacts = contacts.filter((contact) => contact.id !== id);
-    setContacts(updatedContacts);
+    const updatedOutreachs = Outreachs.filter((Outreach) => Outreach.id !== id);
+    setOutreachs(updatedOutreachs);
     setModalVisible(false);
   };
 
@@ -103,10 +89,11 @@ const Admin = () => {
   return (
     <View style={styles.container}>
         <SafeAreaView style={styles.safeArea}>
+        <Logout onPress={goBack} />
           <ScrollView style={styles.scrollView}>
             <View style={styles.safeContainer}>
               <View style={styles.header}>
-                <Text style={styles.headerText}>Contact Management</Text>
+                <Text style={styles.headerText}>Outreach Management</Text>
               </View>
               <View style={styles.row}>
                 <View style={styles.cell}>
@@ -116,23 +103,23 @@ const Admin = () => {
                   <Text style={styles.heading}>Last Name</Text>
                 </View>
                 <View style={styles.cell}>
-                  <Text style={styles.heading}>Category</Text>
+                  <Text style={styles.heading}>Location</Text>
                 </View>
               </View>
-              {contact?.data?.map((contact, index) => (
+              {Outreach?.data?.map((Outreach, index) => (
                 <TouchableOpacity
                   key={index}
                   style={styles.row}
-                  onPress={() => handleContactPress(contact)}
+                  onPress={() => handleOutreachPress(Outreach)}
                 >
                   <View style={styles.cell}>
-                    <Text style={styles.cellText}>{contact.first_name_info}</Text>
+                    <Text style={styles.cellText}>{Outreach.outreach_first_name}</Text>
                   </View>
                   <View style={styles.cell}>
-                    <Text style={styles.cellText}>{contact.last_name_info}</Text>
+                    <Text style={styles.cellText}>{Outreach.outreach_last_name}</Text>
                   </View>
                   <View style={styles.cell}>
-                    <Text style={styles.cellText}>{contact.category_name}</Text>
+                    <Text style={styles.cellText}>{Outreach.outreach_spot}</Text>
                   </View>
                 </TouchableOpacity>
               ))}
@@ -141,107 +128,42 @@ const Admin = () => {
                   <View style={styles.modalBox}>
                     <TouchableOpacity
                       style={styles.modalCloseButton}
-                      onPress={() => {setModalVisible(false), setEditingContact(false)}}
+                      onPress={() => {setModalVisible(false)}}
                     >
                       <Text style={styles.modalCloseButtonText}>Close</Text>
                     </TouchableOpacity>
                     <View style={styles.modalContent}>
-                      {editingContact ? (
-                        <>
-                        <View style={styles.viewModalRow}>
-                        <Text style={styles.viewModalLabel}>First Name:</Text>
-                        <TextInput
-                          style={styles.viewModalInput}
-                          value={editedContact.first_name_info}
-                          onChangeText={(text) =>
-                            setEditedContact({ ...editedContact, first_name_info: text })
-                          }
-                        />
-                        </View>
-                        <View style={styles.viewModalRow}>
-                        <Text style={styles.viewModalLabel}>Last Name:</Text>
-                        <TextInput
-                          style={styles.viewModalInput}
-                          value={editedContact.last_name_info}
-                          onChangeText={(text) =>
-                            setEditedContact({ ...editedContact, last_name_info: text })
-                          }
-                        />
-                        </View>
-                        <View style={styles.viewModalRow}>
-                        <Text style={styles.viewModalLabel}>Category:</Text>
-                        <TextInput
-                          style={styles.viewModalInput}
-                          value={editedContact.category_name}
-                          onChangeText={(text) =>
-                            setEditedContact({ ...editedContact, category_name: text })
-                          }
-                        />
-                        </View>
-                        <View style={styles.viewModalRow}>
-                        <Text style={styles.viewModalLabel}>notes:</Text>
-                        <TextInput
-                          style={styles.viewModalInput}
-                          value={editedContact.contact_notes_info}
-                          onChangeText={(text) =>
-                            setEditedContact({ ...editedContact, contact_notes_info: text })
-                          }
-                        />
-                        </View>
-                        <View style={styles.viewModalRow}>
-                        <Text style={styles.viewModalLabel}>Phone:</Text>
-                        <TextInput
-                          style={styles.viewModalInput}
-                          value={editedContact.phone_number_info}
-                          onChangeText={(text) =>
-                            setEditedContact({ ...editedContact, phone_number_info: text })
-                          }
-                        />
-                        </View>
-                        <TouchableOpacity
-                        style={styles.modalButton}
-                        onPress={() => {
-                          updateContact(editedContact);
-                          setEditingContact(false);
-                          setModalVisible(false);
-                        }}
-                        >
-                        <Text style={styles.modalButtonText}>Save</Text>
-                        </TouchableOpacity>
-                        </>
-                      ) : (
-                        <>
                           <Text style={styles.modalHeading}>
-                            {selectedContact?.first_name_info} {selectedContact?.last_name_info}
+                            {selectedOutreach?.outreach_first_name} {selectedOutreach?.outreach_last_name}
                           </Text>
                           <View style={styles.modalRow}>
-                            <Text style={styles.modalLabel}>Category:</Text>
-                            <Text style={styles.modalValue}>{selectedContact?.category_name}</Text>
+                            <Text style={styles.modalLabel}>Minister:</Text>
+                            <Text style={styles.modalValue}>{selectedOutreach?.minister_category}</Text>
                           </View>
                           <View style={styles.modalRow}>
                             <Text style={styles.modalLabel}>notes:</Text>
-                            <Text numberOfLines={1}  style={styles.modalValue}>{selectedContact?.contact_notes_info}</Text>
+                            <Text numberOfLines={1}  style={styles.modalValue}>{selectedOutreach?.contact_notes}</Text>
                           </View>
                           <View style={styles.modalRow}>
                             <Text style={styles.modalLabel}>Phone:</Text>
-                            <Text style={styles.modalValue}>{selectedContact?.phone_number_info}</Text>
+                            <Text style={styles.modalValue}>{selectedOutreach?.outreach_phone_number}</Text>
+                          </View>
+                          <View style={styles.modalRow}>
+                            <Text style={styles.modalLabel}>Location:</Text>
+                            <Text style={styles.modalValue}>{selectedOutreach?.outreach_spot}</Text>
+                          </View>
+                          <View style={styles.modalRow}>
+                            <Text style={styles.modalLabel}>Date:</Text>
+                            <Text style={styles.modalValue}>{selectedOutreach?.outreach_date} at {selectedOutreach?.outreach_time}  </Text>
                           </View>
                           <View style={styles.modalButtonsContainer}>
                             <TouchableOpacity
-                              style={styles.modalButtonEdit}
-                              onPress={() => handleEditContactPress()}
-                            >
-                              <Text style={styles.modalButtonText}>Edit Contact</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
                               style={styles.modalButtonDelete}
-                              onPress={() => deleteContact(selectedContact?.id)}
+                              onPress={() => deleteOutreach(selectedOutreach?.id)}
                             >
                               <Text style={styles.modalButtonText}>Delete Contact</Text>
                             </TouchableOpacity>
                           </View>
-                        </>
-                      )}
                     </View>
                   </View>
                 </View>
@@ -344,7 +266,7 @@ const styles = StyleSheet.create({
   },
   modalBox: {
     maxHeight: 500,
-    height: '70%',
+    height: '100%',
     backgroundColor: "#f0f0f0",
     borderRadius: 20,
     paddingVertical: 20,
@@ -377,14 +299,15 @@ const styles = StyleSheet.create({
     width: "80%",
   },
   modalHeading: {
-    fontSize: 24,
-    fontWeight: 900,
+    fontSize: 22,
+    fontWeight: 700,
     color: "#333333",
     letterSpacing: 0.5,
     marginBottom: 10,
   },
   modalValue: {
-    fontSize: 24,
+    fontWeight: 400,
+    fontSize: 20,
     color: "#333333",
     textAlign: 'center',
     // ellipsizeMode:'tail',
@@ -396,60 +319,19 @@ const styles = StyleSheet.create({
     width: "100%",
     marginTop: 20,
   }, 
-  modalButtonEdit: {
-    backgroundColor: "#f9a602",
-    padding: 15,
-    borderRadius: 20,
-  },
   modalButtonDelete: {
     backgroundColor: "#f44336",
     padding: 15,
     borderRadius: 20,
   },
-  modalButtonSave: {
-    backgroundColor: "#4caf50",
-  },
   modalLabel: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 900,
     color: "#666",
     marginBottom: 5,
     marginRight: 10,
     paddingTop: 20,
     textTransform: 'uppercase',
-  },
-  modalInput: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 5,
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    fontSize: 18,
-    color: "#333",
-    flex: 1,
-  },
-  modalButton: {
-    backgroundColor: "#2196f3",
-    borderRadius: 25,
-    paddingVertical: 12,
-    paddingHorizontal: 25,
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: 20,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 3,
-    },
-    shadowOpacity: 0.5,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  modalButtonText: {
-    color: "#fff",
-    fontSize: 18,
-    fontWeight: "bold",
-    letterSpacing: 0.5,
   },
   modalButton: {
     backgroundColor: "#4CAF50",
@@ -509,4 +391,4 @@ alert:{
 
 
     
-export default Admin
+export default OutreachContacts

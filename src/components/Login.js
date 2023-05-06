@@ -6,14 +6,18 @@ import { LoginStatus } from '../context/LoginStatus';
 import { SavedStatus } from '../context/SavedStatus';
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
+import getIpAddress from '../../config';
+import { Ionicons } from "@expo/vector-icons";
 
 const Login = ({navigation}) => {
+    const ipAddress = getIpAddress();
     const [username, setUsername] = useState('')
-    const [activeUser, setActiveUser] = useState('')
     const [password, setPassword] = useState('')
+    const [activeUser, setActiveUser] = useState('')
     const [expoPushToken, setExpoPushToken] = useState('')
     const [isSignedIn, setIsSignedIn] = useContext(LoginStatus)
     const [isLoggedIn, setIsLoggedIn] = useContext(SavedStatus);
+    const [showPassword, setShowPassword] = useState(false);
 
     // used to set sign in value
     useEffect(() => {
@@ -42,54 +46,56 @@ const Login = ({navigation}) => {
         });
       }, []);
     
-      async function registerForPushNotificationsAsync() {
-        let token;
-        if (Device.isDevice) {
-          const { status: existingStatus } = await Notifications.getPermissionsAsync();
-          let finalStatus = existingStatus;
-          if (existingStatus !== 'granted') {
-            const { status } = await Notifications.requestPermissionsAsync();
-            finalStatus = status;
-          }
-          if (finalStatus !== 'granted') {
-            return;
-          }
-          token = (await Notifications.getExpoPushTokenAsync({ projectId: 'a72504e9-e86d-4d23-9807-47e31ba51dcb'})).data;
+    async function registerForPushNotificationsAsync() {
+      let token;
+      if (Device.isDevice) {
+        const { status: existingStatus } = await Notifications.getPermissionsAsync();
+        let finalStatus = existingStatus;
+        if (existingStatus !== 'granted') {
+          const { status } = await Notifications.requestPermissionsAsync();
+          finalStatus = status;
+        }
+        if (finalStatus !== 'granted') {
+          return;
+        }
+        token = (await Notifications.getExpoPushTokenAsync({ projectId: 'a72504e9-e86d-4d23-9807-47e31ba51dcb'})).data;
 
-        }
-        // else {
-        //     alert('Must use physical device for Push Notifications');
-        // }
-      
-        if (Platform.OS === 'android') {
-          Notifications.setNotificationChannelAsync('default', {
-            name: 'default',
-            importance: Notifications.AndroidImportance.MAX,
-            vibrationPattern: [0, 250, 250, 250],
-            lightColor: '#FF231F7C',
-          });
-        }
-        return token;
       }
+      // else {
+      //     alert('Must use physical device for Push Notifications');
+      // }
+    
+      if (Platform.OS === 'android') {
+        Notifications.setNotificationChannelAsync('default', {
+          name: 'default',
+          importance: Notifications.AndroidImportance.MAX,
+          vibrationPattern: [0, 250, 250, 250],
+          lightColor: '#FF231F7C',
+        });
+      }
+      return token;
+    }
       
-      useEffect(()=>{ 
-          registerForPushNotificationsAsync().then(token => setExpoPushToken(token));
-       })
+    useEffect(()=>{ 
+        registerForPushNotificationsAsync().then(token => setExpoPushToken(token));
+      })
 
     const postApiResponse = async () => {
         try {  
             const pushTokenData = {username:username, deviceMake:Device.brand, deviceModel:Device.modelName, token:expoPushToken}
-            const postApiCall = await axios.post(`https://agentofgod.pythonanywhere.com/login_verification`,{username:username, password:password})
+            const postApiCall = await axios.post(`${ipAddress}/login_verification`,{username:username, password:password})
             const apiResponseEncode =  await JSON.stringify(postApiCall.data)
             await SecureStore.setItemAsync('userProfile', apiResponseEncode)
-            const pushTokenApiCall = await axios.post(`https://agentofgod.pythonanywhere.com/save_push_token`,pushTokenData)
+            const pushTokenApiCall = await axios.post(`${ipAddress}/save_push_token`,pushTokenData)
             const activeUser = postApiCall.data['active'] === 'true'
             const activeToken = pushTokenApiCall.data === 'successful'
+            const userProfileInfo = await SecureStore.getItemAsync('userProfile');
             if (activeUser || activeToken) {
                 setIsSignedIn(true)
                 setActiveUser(true)
+                setUsername(null)
+                setPassword(null)
                 navigation.navigate('Homepage')
-
             }else{
                 Alert.alert('❌', 'Username and/or password is invalid. Please try again.')
                 }
@@ -101,7 +107,7 @@ const Login = ({navigation}) => {
     }
 
     const PasswordReset = async() => {
-        const url = `https://agentofgod.pythonanywhere.com/accounts/password_reset`;
+        const url = `${ipAddress}/accounts/password_reset`;
         const supported = await Linking.canOpenURL(url);
       
         if (supported) {
@@ -111,51 +117,61 @@ const Login = ({navigation}) => {
         }
         }
     return (
-            <KeyboardAvoidingView style={styles.container} behavior="padding" >
-                <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-                    <View style={styles.form}>
-                    <Text style={styles.header}>Login</Text>
-                        <TextInput
-                            style={styles.loginField}
-                            value={username}
-                            autoCapitalize='none'
-                            autoCorrect={false}
-                            onChangeText={(text) => {
-                                setUsername(text) 
-                            }}
-                            placeholder="username"
-                            placeholderTextColor="grey"
-                            clearButtonMode="always"
-                            returnKeyType="next"
-                        />
-                        <TextInput
-                            style={styles.loginField}
-                            value={password}
-                            autoCapitalize='none'
-                            autoCorrect={false}
-                            onChangeText={(text) => {
-                                setPassword(text) 
-                            }}
-                            placeholder="password"
-                            secureTextEntry={true}
-                            clearButtonMode="always"
-                            returnKeyType="next"
-                            placeholderTextColor="grey"
-                        />
-                      <View style={styles.buttons}>
-                        <TouchableOpacity style={[styles.loginButton, {marginRight: 7}]} onPress={()=>navigation.navigate('Create')} title="Create">
-                          <Text style={styles.buttonText}>Create</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={[styles.loginButton, {marginRight: 7, marginLeft: 7}]} onPress={postApiResponse} title="Login">
-                          <Text style={styles.buttonText}>Login</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={[styles.loginButton, {marginLeft: 7}]} onPress={PasswordReset} title="Reset">
-                          <Text style={styles.buttonText}>Reset</Text>
-                        </TouchableOpacity>
-                      </View>
-                    </View>
-                </TouchableWithoutFeedback>
-            </KeyboardAvoidingView>
+      <KeyboardAvoidingView style={styles.container} behavior="padding" >
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+          <View style={styles.form}>
+            <Text style={styles.header}>Welcome</Text>
+          <TextInput
+              style={styles.loginField}
+              value={username}
+              autoCapitalize='none'
+              autoCorrect={false}
+              onChangeText={(text) => {
+                  setUsername(text) 
+              }}
+              placeholder="username"
+              placeholderTextColor="grey"
+              clearButtonMode="always"
+              returnKeyType="next"
+              autoCompleteType="username"
+          />
+          <View style={{ position: "relative" }}>
+          <TextInput
+              style={styles.loginField}
+              value={password}
+              autoCapitalize='none'
+              autoCorrect={false}
+              onChangeText={(text) => {
+                  setPassword(text) 
+              }}
+              placeholder="password"
+              secureTextEntry={!showPassword}
+              returnKeyType="next"
+              placeholderTextColor="grey"
+              autoCompleteType="password"
+          />
+            <Ionicons
+              name={showPassword ? "eye-off-outline" : "eye-outline"}
+              size={24}
+              color="#777"
+              style={styles.icon}
+              onPress={() => setShowPassword(!showPassword)}
+            />
+          </View>
+          <View style={styles.buttons}>
+            <TouchableOpacity style={[styles.loginButton, {marginRight: 7}]} onPress={()=>navigation.navigate('Create')} title="Create">
+              <Text style={styles.buttonText}>Create</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.loginButton, {marginRight: 7, marginLeft: 7}]} onPress={postApiResponse} title="Login">
+              <Text style={styles.buttonText}>Login</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.loginButton, {marginLeft: 7}]} onPress={PasswordReset} title="Reset">
+              <Text style={styles.buttonText}>Reset</Text>
+            </TouchableOpacity>
+          </View>
+      </View>
+          </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
     )
 }
 

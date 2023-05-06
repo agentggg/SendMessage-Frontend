@@ -2,7 +2,10 @@ import React from 'react'
 import { createStackNavigator } from '@react-navigation/stack';
 import Select from '../components/Select';
 import Send from '../components/Send';
-import Admin from '../components/Admin';
+import AdminView from '../components/AdminView';
+import ContactAdmin from '../components/ContactAdmin';
+import OutreachContacts from '../components/OutreachContacts';
+import AccountAdmin from '../components/AccountAdmin';
 import Login from '../components/Login';
 import CreateAccount from '../components/CreateAccount';
 
@@ -21,7 +24,10 @@ export const TextStackScreen = () => {
 export const AdminStackScreen = () => {
   return (
     <Stack.Navigator>
-      <Stack.Screen name="Nation Admin" component={Admin} />
+      <Stack.Screen name="Nation Admin" component={AdminView}/>
+      <Stack.Screen name="Contact Admin" component={ContactAdmin} options={{ title: 'Contact' }}/>
+      <Stack.Screen name="Outreach Contacts" component={OutreachContacts} options={{ title: 'Outreach' }}/>
+      <Stack.Screen name="Account Admin" component={AccountAdmin} options={{ title: 'Account' }}/>
     </Stack.Navigator>
   );
 };

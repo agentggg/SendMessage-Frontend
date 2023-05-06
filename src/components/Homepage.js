@@ -4,6 +4,7 @@ import ResponsiveImage from 'react-native-responsive-image';
 import axios from "axios";
 import * as SecureStore from 'expo-secure-store';
 import { ProfileInfo } from '../context/ProfileInfo'
+import Logout from '../reuseableComponents/Logout';
 
 
 const Homepage = ({navigation}) => {
@@ -48,9 +49,13 @@ const Homepage = ({navigation}) => {
       </View>
     );
   }
+  const goBack= () => {
+    navigation.navigate('Authenticatie');
+  }
   return (    
     <SafeAreaView style={styles.container}>
       <ScrollView>
+        <Logout onPress={goBack} />
           <Text style={styles.greeter}>Welcome {profileInfo.name} from {profileInfo.org}</Text>
           <ResponsiveImage style={styles.homePageImage} source={homePageImage} initWidth="400" initHeight="385"/>
           <Text style={styles.randomVerseSelection}>{defaultVerse}</Text>

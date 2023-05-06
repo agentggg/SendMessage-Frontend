@@ -5,8 +5,11 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import {Picker} from '@react-native-picker/picker';
 import * as Location from 'expo-location';
 import { ProfileInfo } from '../context/ProfileInfo'
+import Logout from '../reuseableComponents/Logout';
+import getIpAddress from '../../config';
 
 const OutreachUpdate = ({navigation}) => {
+    const ipAddress = getIpAddress();
     const [profileInfo] = useContext(ProfileInfo)
     const [notes, setNotes] = useState('')
     const [firstName, setFirstName] = useState('')
@@ -18,6 +21,10 @@ const OutreachUpdate = ({navigation}) => {
     const [category, setCategory] = useState('Prayer')
     const [errorMsg, setErrorMsg] = useState('');
     const {org, token, username, email} = profileInfo;
+
+    const goBack= () => {
+        navigation.navigate('Authenticatie');
+      }
 
     useEffect(() => {
         return navigation.addListener('focus', async() => {
@@ -47,16 +54,16 @@ const OutreachUpdate = ({navigation}) => {
         org:org, username:username, time:userTime, email:email, location:meetUpSpot
     }
     // data that will be sent to the API endpoint
-    axios.post(`https://agentofgod.pythonanywhere.com/outreach_registration_api`,data,{ Authorization: `token ${token}`});
+    axios.post(`${ipAddress}/outreach_registration_api`,data,{ Authorization: `token ${token}`});
     Alert.alert('Contact Registered Successfully')
     // sets the value of the form input fields to "empty". If not, the prevent default will hinder the page from re-rendering, and all the data will remain on screen.
     setNotes(''),setFirstName(''), setLastName(''), setPhoneNumber(''), setLatitude(), setLongitude(), setMeetUpSpot('')
     }
         
-
     return (
         <SafeAreaView>
             <KeyboardAwareScrollView>
+            <Logout onPress={goBack} />
                 <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
                     <View style={styles.container}>
                         <Text style={styles.greeter}> {org} Outreach Update</Text>
