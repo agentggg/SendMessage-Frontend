@@ -20,7 +20,7 @@ const OutreachUpdate = ({navigation}) => {
     const [meetUpSpot, setMeetUpSpot] = useState('')
     const [category, setCategory] = useState('Prayer')
     const [errorMsg, setErrorMsg] = useState('');
-    const {org, token, username, email} = profileInfo;
+    const {org, token, username, email, name} = profileInfo;
 
     const goBack= () => {
         navigation.navigate('Authenticatie');
@@ -51,7 +51,7 @@ const OutreachUpdate = ({navigation}) => {
     const data = {
         firstName:firstName, lastName:lastName, phoneNumber:phoneNumber,
         latitude:latitude, longitude:longitude ,notes:notes, category:category, saveOption: e,
-        org:org, username:username, time:userTime, email:email, location:meetUpSpot
+        org:org, username:name, time:userTime, email:email, location:meetUpSpot
     }
     // data that will be sent to the API endpoint
     axios.post(`${ipAddress}/outreach_registration_api`,data,{ Authorization: `token ${token}`});

@@ -17,7 +17,7 @@ const Homepage = ({navigation}) => {
   const outreach_Logo = require('../../assets/2535_black.jpg')
   const firetracker = require('../../assets/firetracker.png')
   const admin = require('../../assets/admin.png')
-
+  console.log(profileInfo)
   const randomVerseSelection = async()=>{
     try{
         const apiFetch = await axios.get('https://labs.bible.org/api/?passage=random&formatting=plain')
